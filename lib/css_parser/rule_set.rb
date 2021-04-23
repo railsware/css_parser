@@ -24,6 +24,11 @@ module CssParser
       ['border-width', %w[border-top-width border-right-width border-bottom-width border-left-width]]
     ].freeze
 
+    # Tokens for parse_declarations!
+    COLON = ':'.freeze
+    SEMICOLON = ';'.freeze
+    LPAREN = '('.freeze
+    RPAREN = ')'.freeze
     class Declarations
       class Value
         attr_reader :value
@@ -610,14 +615,21 @@ module CssParser
       return unless block
 
       continuation = nil
-      block.split(/[;$]+/m).each do |decs|
-        decs = (continuation ? continuation + decs : decs)
-        if decs =~ /\([^)]*\Z/ # if it has an unmatched parenthesis
-          continuation = "#{decs};"
-        elsif (matches = decs.match(/\s*(.[^:]*)\s*:\s*(.+?)(?:;?\s*\Z)/i))
-          # skip end_of_declaration
-          property = matches[1]
-          value = matches[2]
+      block.split(SEMICOLON) do |decs|
+        decs = (continuation ? "#{continuation};#{decs}" : decs)
+        lparen_index = decs.index(LPAREN)
+        if !lparen_index.nil? && decs.index(RPAREN, lparen_index).nil? # if it has an unmatched parenthesis
+          continuation = decs
+        else
+          colon = decs.index(COLON)
+          next if colon.nil?
+
+          property = decs[0, colon]
+          value = decs[colon + 1, decs.length - colon - 1]
+          property.strip!
+          value.strip!
+          next if property.empty? || value.empty?
+
           add_declaration!(property, value)
           continuation = nil
         end
