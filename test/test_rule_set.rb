@@ -50,11 +50,12 @@ class RuleSetTests < Minitest::Test
     expected = Set[
       {property: 'margin', value: '1px -0.25em', is_important: false},
       {property: 'background', value: 'white none no-repeat', is_important: true},
-      {property: 'color', value: '#fff', is_important: false}
+      {property: 'color', value: '#fff', is_important: false},
+      {property: 'content', value: '"(two semicolons ;;)"', is_important: false}
     ]
 
     actual = Set.new
-    rs = RuleSet.new(nil, 'color: #fff; Background: white none no-repeat !important; margin: 1px -0.25em;')
+    rs = RuleSet.new(nil, 'color: #fff; Background: white none no-repeat !important; margin: 1px -0.25em; content: "(two semicolons ;;)"')
     rs.each_declaration do |prop, val, imp|
       actual << {property: prop, value: val, is_important: imp}
     end
