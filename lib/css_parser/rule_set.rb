@@ -36,9 +36,14 @@ module CssParser
         attr_reader :value
         attr_accessor :important
 
-        def initialize(value, important: nil)
-          self.value = value
-          @important = important unless important.nil?
+        def initialize(value, important: nil, presanitized: false)
+          if presanitized # value is already valid and !important has already been sliced out
+            @value = value
+            @important = important
+          else
+            self.value = value
+            @important = important unless important.nil?
+          end
         end
 
         def value=(value)
@@ -630,9 +635,10 @@ module CssParser
           value = decs[colon + 1, decs.length - colon - 1]
           property.strip!
           value.strip!
+          important = !value.slice!(CssParser::IMPORTANT_IN_PROPERTY_RX).nil?
           next if property.empty? || value.empty?
 
-          add_declaration!(property, value)
+          declarations[property.downcase] = Declarations::Value.new(value, important: important, presanitized: true)
           continuation = nil
         end
       end
