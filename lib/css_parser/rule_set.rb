@@ -108,6 +108,12 @@ module CssParser
       end
       alias add_declaration! []=
 
+      # Optimized version of add_declaration! that bypasses normalization.
+      # Used internally in parse_declarations.
+      def add_declaration_unsafely!(normalized_property, value_object) # :nodoc:
+        declarations[normalized_property] = value_object
+      end
+
       def [](property)
         declarations[normalize_property(property)]
       end
@@ -638,7 +644,9 @@ module CssParser
           important = !value.slice!(CssParser::IMPORTANT_IN_PROPERTY_RX).nil?
           next if property.empty? || value.empty?
 
-          declarations[property.downcase] = Declarations::Value.new(value, important: important, presanitized: true)
+          property.downcase!
+          value_object = Declarations::Value.new(value, important: important, presanitized: true)
+          declarations.add_declaration_unsafely!(property, value_object)
           continuation = nil
         end
       end
