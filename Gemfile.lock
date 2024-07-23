@@ -23,7 +23,8 @@ GEM
     rainbow (3.0.0)
     rake (13.0.3)
     regexp_parser (2.0.3)
-    rexml (3.2.4)
+    rexml (3.3.2)
+      strscan
     rubocop (1.8.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
@@ -38,6 +39,8 @@ GEM
     rubocop-rake (0.5.1)
       rubocop
     ruby-progressbar (1.11.0)
+    strscan (3.1.0)
+    strscan (3.1.0-java)
     unicode-display_width (2.0.0)
     webrick (1.7.0)
 
